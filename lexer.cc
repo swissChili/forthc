@@ -58,12 +58,37 @@ std::list<token::token> lexer::lex() {
 
             s = none;
             buf = "";
+        // TODO: Fix this and ; to not repeat code
         } else if (c == ':') {
+            if (s == word) {
+                tokens.emplace_back(token::word{buf});
+            } else if (s == whole) {
+                try {
+                    tokens.emplace_back(token::whole{std::stol(buf)});
+                } catch (std::invalid_argument) {
+                    error("Could not convert `" + buf + "` to long.");
+                } catch (std::out_of_range) {
+                    error("Integer too large: `" + buf + "`");
+                }
+            }
             tokens.emplace_back(token::start_fn{});
             s = none;
+            buf = "";
         } else if (c == ';') {
+            if (s == word) {
+                tokens.emplace_back(token::word{buf});
+            } else if (s == whole) {
+                try {
+                    tokens.emplace_back(token::whole{std::stol(buf)});
+                } catch (std::invalid_argument) {
+                    error("Could not convert `" + buf + "` to long.");
+                } catch (std::out_of_range) {
+                    error("Integer too large: `" + buf + "`");
+                }
+            }
             tokens.emplace_back(token::end_fn{});
             s = none;
+            buf = "";
         } else {
             error("Unexpected char `" + std::to_string(c) + "`");
         }

@@ -1,1 +1,1 @@
-120 hello : ;
+: main 120 hello ;
