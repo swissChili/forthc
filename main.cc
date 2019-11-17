@@ -8,15 +8,25 @@
 namespace s = assembly;
 
 int main() {
-    std::cout << "Parsing test.forth" << std::endl;
+    std::map<std::string, std::list<std::string>> macros;
+
+    std::list<std::string> add_inst;
+    add_inst.push_back(s::pop(s::rax));
+    add_inst.push_back(s::pop(s::rbx));
+    add_inst.push_back(s::add(s::rax, s::rbx));
+    add_inst.push_back(s::push(s::rax));
+
+    macros["+"] = add_inst;
+
+    std::cerr << "Parsing test.forth" << std::endl;
     lexer l("../test.forth");
     std::list<token::token> tokens = l.lex();
 
-    for (auto t : tokens) {
+    /*for (const auto& t : tokens) {
         debug(t);
-    }
+    }*/
 
-    parser p{tokens};
+    parser p(tokens, macros);
     auto f = p.parse();
 
     for (auto fn : f) {

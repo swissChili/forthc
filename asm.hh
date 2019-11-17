@@ -18,6 +18,9 @@ namespace assembly {
 
     std::string mov(std::string to, long num);
     std::string push(long num);
+    std::string push(std::string reg);
+    std::string pop(std::string to);
+    std::string add(std::string a, std::string b);
     std::string call(std::string fn);
 
     class function {

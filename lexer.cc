@@ -4,12 +4,12 @@
 
 lexer::lexer(std::string f) {
     file.open(f, std::ifstream::in);
-    std::cout << "Opened " << f << std::endl;
+    std::cerr << "Opened " << f << std::endl;
     line = 0;
 }
 
 void lexer::error(std::string s) {
-    std::cerr << "Error near line " << line << ": " << s << std::endl;
+    std::cerr << "Error on line " << line << ": " << s << std::endl;
     throw s;
 }
 
@@ -44,7 +44,11 @@ std::list<token::token> lexer::lex() {
 
         if ((c >= 'a' && c <= 'z')
          || (c >= 'A' && c <= 'Z')
-         || c == '_') {
+         || c == '_'
+         || c == '+'
+         || c == '-'
+         || c == '/'
+         || c == '*') {
             buf.push_back(c);
             s = word;
         } else if ((c >= '0' && c <= '9')) {

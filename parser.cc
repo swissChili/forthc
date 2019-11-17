@@ -13,7 +13,10 @@ void parser::error(std::string message, token::token &t) {
 
 bool parser::parse_instruction(s::function &fn) {
     if (auto word = std::get_if<token::word>(&tokens.front())) {
-        fn << s::call(word->val);
+        if (macro_words.find(word->val) != macro_words.end()) {
+            fn << macro_words[word->val];
+        } else
+            fn << s::call(word->val);
         return true;
     } else if (auto whole = std::get_if<token::whole>(&tokens.front())) {
         fn << s::push(whole->val);
