@@ -1,7 +1,10 @@
 #include "tokens.hh"
 #include "lexer.hh"
 #include "debug.hh"
+#include "asm.hh"
 #include <iostream>
+
+namespace s = assembly;
 
 int main() {
     std::cout << "Parsing test.forth" << std::endl;
@@ -11,4 +14,12 @@ int main() {
     for (auto t : tokens) {
         debug(t);
     }
+
+    s::function fn{"main"};
+    fn << s::push(240)
+       << s::mov(s::rax, 230);
+
+    fn.strings["a"] = "Hello, World";
+
+    std::cout << fn.assemble();
 }
