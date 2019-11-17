@@ -13,23 +13,31 @@ void lexer::error(std::string s) {
     throw s;
 }
 
+void lexer::emplace_buf(std::string &buf) {
+    if (s == word) {
+        tokens.emplace_back(token::word{buf});
+    } else if (s == whole) {
+        try {
+            tokens.emplace_back(token::whole{std::stol(buf), line});
+        } catch (std::invalid_argument) {
+            error("Could not convert `" + buf + "` to long.");
+        } catch (std::out_of_range) {
+            error("Integer too large: `" + buf + "`");
+        }
+    }
+}
+
 std::list<token::token> lexer::lex() {
-    std::list<token::token> tokens;
-
-    enum state {
-        none,
-        word,
-        whole,
-    };
-
     char c;
     std::string buf;
-    state s = none;
 
     //std::cout << file.good();
 
-    while (c = file.get()) {
-        if (c == '\n') line++;
+    while ((c = file.get())) {
+        if (c == '\n') {
+            line++;
+            tokens.emplace_back(token::eol{});
+        }
         else if (c == -1) {
             tokens.emplace_back(token::eof{});
             return tokens;
@@ -44,48 +52,20 @@ std::list<token::token> lexer::lex() {
             buf.push_back(c);
             s = whole;
         } else if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
-            if (s == word) {
-                tokens.emplace_back(token::word{buf});
-            } else if (s == whole) {
-                try {
-                    tokens.emplace_back(token::whole{std::stol(buf)});
-                } catch (std::invalid_argument) {
-                    error("Could not convert `" + buf + "` to long.");
-                } catch (std::out_of_range) {
-                    error("Integer too large: `" + buf + "`");
-                }
-            }
+            emplace_buf(buf);
 
             s = none;
             buf = "";
         // TODO: Fix this and ; to not repeat code
         } else if (c == ':') {
-            if (s == word) {
-                tokens.emplace_back(token::word{buf});
-            } else if (s == whole) {
-                try {
-                    tokens.emplace_back(token::whole{std::stol(buf)});
-                } catch (std::invalid_argument) {
-                    error("Could not convert `" + buf + "` to long.");
-                } catch (std::out_of_range) {
-                    error("Integer too large: `" + buf + "`");
-                }
-            }
+            emplace_buf(buf);
+
             tokens.emplace_back(token::start_fn{});
             s = none;
             buf = "";
         } else if (c == ';') {
-            if (s == word) {
-                tokens.emplace_back(token::word{buf});
-            } else if (s == whole) {
-                try {
-                    tokens.emplace_back(token::whole{std::stol(buf)});
-                } catch (std::invalid_argument) {
-                    error("Could not convert `" + buf + "` to long.");
-                } catch (std::out_of_range) {
-                    error("Integer too large: `" + buf + "`");
-                }
-            }
+            emplace_buf(buf);
+
             tokens.emplace_back(token::end_fn{});
             s = none;
             buf = "";

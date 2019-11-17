@@ -8,15 +8,23 @@
 namespace token {
     struct word {
         std::string val;
+        unsigned line;
     };
 
     struct whole {
         long val;
+        unsigned line;
     };
 
-    struct start_fn {};
-    struct end_fn {};
-    struct eof {};
+    struct start_fn {
+        unsigned line;
+    };
+    struct end_fn {
+        unsigned line;
+    };
+    struct eof {
+        unsigned line;
+    };
 
     typedef std::variant<word, whole, start_fn, end_fn, eof> token;
 }
