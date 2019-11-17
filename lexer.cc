@@ -15,7 +15,7 @@ void lexer::error(std::string s) {
 
 void lexer::emplace_buf(std::string &buf) {
     if (s == word) {
-        tokens.emplace_back(token::word{buf});
+        tokens.emplace_back(token::word{buf,line});
     } else if (s == whole) {
         try {
             tokens.emplace_back(token::whole{std::stol(buf), line});
@@ -36,10 +36,9 @@ std::list<token::token> lexer::lex() {
     while ((c = file.get())) {
         if (c == '\n') {
             line++;
-            tokens.emplace_back(token::eol{});
         }
         else if (c == -1) {
-            tokens.emplace_back(token::eof{});
+            tokens.emplace_back(token::eof{line});
             return tokens;
         }
 
@@ -56,17 +55,16 @@ std::list<token::token> lexer::lex() {
 
             s = none;
             buf = "";
-        // TODO: Fix this and ; to not repeat code
         } else if (c == ':') {
             emplace_buf(buf);
 
-            tokens.emplace_back(token::start_fn{});
+            tokens.emplace_back(token::start_fn{line});
             s = none;
             buf = "";
         } else if (c == ';') {
             emplace_buf(buf);
 
-            tokens.emplace_back(token::end_fn{});
+            tokens.emplace_back(token::end_fn{line});
             s = none;
             buf = "";
         } else {

@@ -13,12 +13,13 @@ private:
     std::list<token::token> tokens;
     //unsigned index;
     unsigned line;
-    void error(std::string);
+    void error(std::string, token::token &);
     s::function parse_function();
+    bool parse_instruction(s::function &fn);
 
 public:
     explicit parser(std::list<token::token> t): tokens(std::move(t)), line(1) {}
-    void parse();
+    std::list<s::function> parse();
 };
 
 

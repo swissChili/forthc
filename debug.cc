@@ -14,3 +14,16 @@ void debug(token::token t) {
         std::cout << "<EOF>";
     std::cout << std::endl;
 }
+
+unsigned get_line(token::token t) {
+    if (auto v = std::get_if<token::whole>(&t))
+        return v->line;
+    else if (auto v = std::get_if<token::word>(&t))
+        return v->line;
+    else if (auto v = std::get_if<token::start_fn>(&t))
+        return v->line;
+    else if (auto v = std::get_if<token::end_fn>(&t))
+        return v->line;
+    else if (auto v = std::get_if<token::eof>(&t))
+        return v->line;
+}

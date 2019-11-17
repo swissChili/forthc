@@ -2,6 +2,7 @@
 #include "lexer.hh"
 #include "debug.hh"
 #include "asm.hh"
+#include "parser.hh"
 #include <iostream>
 
 namespace s = assembly;
@@ -15,11 +16,10 @@ int main() {
         debug(t);
     }
 
-    s::function fn{"main"};
-    fn << s::push(240)
-       << s::mov(s::rax, 230);
+    parser p{tokens};
+    auto f = p.parse();
 
-    fn.strings["a"] = "Hello, World";
-
-    std::cout << fn.assemble();
+    for (auto fn : f) {
+        std::cout << fn.assemble();
+    }
 }

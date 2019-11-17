@@ -3,21 +3,53 @@
 #include <variant>
 #include "parser.hh"
 #include "asm.hh"
+#include "debug.hh"
 
-void parser::error(std::string message) {
+void parser::error(std::string message, token::token &t) {
     std::cerr
-        << "Error parsing line " << line << ": " << message << std::endl;
+        << "Error parsing line " << get_line(t) << ": " << message << std::endl;
     throw message;
 }
 
-s::function parser::parse_function() {
-
+bool parser::parse_instruction(s::function &fn) {
+    if (auto word = std::get_if<token::word>(&tokens.front())) {
+        fn << s::call(word->val);
+        return true;
+    } else if (auto whole = std::get_if<token::whole>(&tokens.front())) {
+        fn << s::push(whole->val);
+        return true;
+    } else return false;
 }
 
-void parser::parse() {
+s::function parser::parse_function() {
+    if (std::get_if<token::start_fn>(&tokens.front()) == nullptr) {
+        error("Expected a function", tokens.front());
+    }
+    tokens.pop_front();
+
+    auto name_word = std::get_if<token::word>(&tokens.front());
+    if (!name_word)
+        error("Expected a word as the function name", tokens.front());
+
+    s::function fn{name_word->val};
+
+    do tokens.pop_front();
+    while (parse_instruction(fn));
+
+    if (!std::get_if<token::end_fn>(&tokens.front()))
+        error("Expected to end function", tokens.front());
+
+    tokens.pop_front();
+
+    return fn;
+}
+
+std::list<s::function> parser::parse() {
     std::list<s::function> fns;
 
-    while (std::get_if<token::eol>(&tokens.front()) != nullptr) {
+    // While the file isn't over
+    while (std::get_if<token::eof>(&tokens.front()) == nullptr) {
         fns.push_back(parse_function());
     }
+    return fns;
 }

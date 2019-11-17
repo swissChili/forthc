@@ -18,6 +18,7 @@ namespace assembly {
 
     std::string mov(std::string to, long num);
     std::string push(long num);
+    std::string call(std::string fn);
 
     class function {
     public:
@@ -27,6 +28,7 @@ namespace assembly {
 
         explicit function(std::string name) : name(std::move(name)) {}
         function &operator<<(std::string instruction);
+        function &operator<<(std::list<std::string> insts);
         std::string assemble();
     };
 }

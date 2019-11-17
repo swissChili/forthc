@@ -14,9 +14,20 @@ namespace assembly {
 #endif
     }
 
+    std::string call(std::string fn) {
+        return "\tcall " + fn;
+    }
+
     function &function::operator<<(std::string inst) {
         instructions.push_back(inst);
         // this might not be efficient, idk
+        return *this;
+    }
+
+    function& function::operator<<(std::list<std::string> insts) {
+        for (auto i : insts) {
+            instructions.push_back(i);
+        }
         return *this;
     }
 
