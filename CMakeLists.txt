@@ -5,4 +5,4 @@ set(CMAKE_CXX_STANDARD 17)
 enable_language(CXX ASM)
 
 add_executable(forthc main.cc tokens.hh lexer.cc lexer.hh debug.cc debug.hh parser.cc parser.hh asm.cc asm.hh)
-add_library(fstd STATIC linux/_start.s linux/puts.s)
+add_library(fstd STATIC linux/_start.s linux/puts.s linux/writes.s)
