@@ -11,11 +11,11 @@ dbl:
     add %rax, %rax
     push %rax
 
-    mov (%rbp), %rax
+    mov (%rbp), %rbx
     # [ 0 8 16 24 ]
     #     ^
     sub $8, %rbp
-    jmp *%rax
+    jmp *%rbx
 
 main:
     # [ 0 8 16 24 ]

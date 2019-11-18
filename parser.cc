@@ -36,7 +36,6 @@ s::function parser::parse_function() {
 
     s::function fn{name_word->val};
 
-    fn << s::pop(s::r15);
 
     do tokens.pop_front();
     while (parse_instruction(fn));
@@ -45,8 +44,6 @@ s::function parser::parse_function() {
         // Return the top of the stack
         fn << s::pop(s::rax);
     }
-
-    fn << s::push(s::r15);
 
     if (!std::get_if<token::end_fn>(&tokens.front()))
         error("Expected to end function", tokens.front());

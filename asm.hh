@@ -15,6 +15,7 @@ namespace assembly {
     static std::string rcx = "%rcx";
     static std::string rdx = "%rdx";
     static std::string r15 = "%r15";
+    static std::string rbp = "%rbp";
 #endif
 
     std::string mov(std::string to, long num);
@@ -22,7 +23,12 @@ namespace assembly {
     std::string push(std::string reg);
     std::string pop(std::string to);
     std::string add(std::string a, std::string b);
+    std::string add(std::string a, long b);
+    std::string sub(std::string a, std::string b);
+    std::string sub(std::string a, long b);
     std::string call(std::string fn);
+    std::string deref(const std::string& val);
+    std::string mov(std::string t, std::string s);
 
     class function {
     public:

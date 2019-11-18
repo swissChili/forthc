@@ -27,8 +27,29 @@ namespace assembly {
     }
 
     std::string add(std::string a, std::string b) {
-        return "\tadd " + a + ", " + b;
+        return "\tadd " + b + ", " + a;
     }
+
+    std::string add(std::string a, long b) {
+        return "\tadd " + std::to_string(b) + "," + a;
+    }
+
+    std::string sub(std::string a, std::string b) {
+        return "\tsub " + b + ", " + a;
+    }
+
+    std::string sub(std::string a, long b) {
+        return "\tsub " + std::to_string(b) + "," + a;
+    }
+
+    std::string deref(const std::string& val) {
+        return "(" + val + ")";
+    }
+
+    std::string mov(std::string t, std::string s) {
+        return "\tmov " + s + ", " + t;
+    }
+
 
     function &function::operator<<(std::string inst) {
         instructions.push_back(inst);
@@ -56,12 +77,19 @@ namespace assembly {
                 << "\t.string \"" << str << "\"\n";
         }
 
-        code << name << ":\n";
+        code
+            << name << ":\n"
+            << add(rbp, 8) << std::endl
+            << pop(deref(rbp)) << std::endl;
+
         for (auto const &inst : instructions) {
             code << inst << "\n";
         }
 
-        code << "\tret\n";
+        code
+            << mov(rbx, deref(rbp)) << std::endl
+            << sub(rbp, 8) << std::endl
+            << "\tjmp *%rbx\n";
 
         return code.str();
     }
