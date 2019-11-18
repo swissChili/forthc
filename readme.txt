@@ -30,12 +30,12 @@ that these paradigms don't translate perfectly to x86 machine code.
     address a function should return to is stored on the stack. For instance,
     consider the following Forth code:
 
-        : double dup + ;
-        : main 23 double ;
+        : dbl dup + ;
+        : main 23 dbl ;
 
     Literally translated to assembly this would look something like this:
 
-        double:
+        dbl:
             pop %rax
             add %rax, %rax
             push %rax
@@ -43,7 +43,7 @@ that these paradigms don't translate perfectly to x86 machine code.
 
         main:
             push $23
-            call double
+            call dbl
             ret
 
     While this may seem correct on the surface anyone who has programmed in
@@ -59,8 +59,10 @@ that these paradigms don't translate perfectly to x86 machine code.
     it pops that address into a register and jumps to it. The correct code would
     look something like this:
 
-        double:
-            sub $8, %rbp
+        dbl:
+            # [ 0 8 16 24 ]
+            #       ^
+            add $8, %rbp
             pop (%rbp)
 
             pop %rax
@@ -68,19 +70,26 @@ that these paradigms don't translate perfectly to x86 machine code.
             push %rax
 
             mov (%rbp), %rax
-            add $8, %rbp
-            jmp %rax
+            # [ 0 8 16 24 ]
+            #     ^
+            sub $8, %rbp
+            jmp *%rax
 
         main:
-            sub $8, %rbp
+            # [ 0 8 16 24 ]
+            #     ^
+            add $8, %rbp
             pop (%rbp)
 
             push $23
-            call double
+            call dbl
 
-            mov (%rbp), %rax
-            add $8, %rbp
-            jmp %rax
+            mov (%rbp), %rbx
+            # [ 0 8 16 24 ]
+            #   ^
+            sub $8, %rbp
+            mov $0, %rax
+            jmp *%rbx
 
     This is a lot longer, and requires the runtime to allocate a second stack of
     an appropriate size (which I haven't decided upon yet) but it seems like the
