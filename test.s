@@ -1,6 +1,9 @@
 .global main
 
 
+epic_str:
+    .string "Hello\n"
+
 dbl:
     # [ 0 8 16 24 ]
     #       ^
@@ -23,8 +26,11 @@ main:
     add $8, %rbp
     pop (%rbp)
 
-    push $23
-    call dbl
+    #push $23
+    #call dbl
+
+    push $epic_str
+    call puts
 
     mov (%rbp), %rbx
     # [ 0 8 16 24 ]

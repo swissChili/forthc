@@ -18,6 +18,13 @@ int main() {
 
     macros["+"] = add_inst;
 
+    std::list<std::string> dup_inst;
+    dup_inst.push_back(s::pop(s::rax));
+    dup_inst.push_back(s::push(s::rax));
+    dup_inst.push_back(s::push(s::rax));
+
+    macros["dup"] = dup_inst;
+
     std::cerr << "Parsing test.forth" << std::endl;
     lexer l("../test.forth");
     std::list<token::token> tokens = l.lex();

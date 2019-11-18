@@ -31,7 +31,7 @@ namespace assembly {
     }
 
     std::string add(std::string a, long b) {
-        return "\tadd " + std::to_string(b) + "," + a;
+        return "\tadd $" + std::to_string(b) + ", " + a;
     }
 
     std::string sub(std::string a, std::string b) {
@@ -39,7 +39,7 @@ namespace assembly {
     }
 
     std::string sub(std::string a, long b) {
-        return "\tsub " + std::to_string(b) + "," + a;
+        return "\tsub $" + std::to_string(b) + ", " + a;
     }
 
     std::string deref(const std::string& val) {
