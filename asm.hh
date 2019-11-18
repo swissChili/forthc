@@ -14,6 +14,7 @@ namespace assembly {
     static std::string rbx = "%rbx";
     static std::string rcx = "%rcx";
     static std::string rdx = "%rdx";
+    static std::string r15 = "%r15";
 #endif
 
     std::string mov(std::string to, long num);

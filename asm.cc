@@ -60,9 +60,7 @@ namespace assembly {
         for (auto const &inst : instructions) {
             code << inst << "\n";
         }
-        if (name == "main") {
-            code << pop(rax) << "\n";
-        }
+
         code << "\tret\n";
 
         return code.str();
