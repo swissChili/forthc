@@ -35,7 +35,7 @@ current state.
 
     int square ( int num )
     {
-        return int * int;
+        return num * num;
     }
 
 and in Forth:
