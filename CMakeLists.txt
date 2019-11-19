@@ -14,4 +14,6 @@ add_library(fstd STATIC
         linux/puti.s
         generic/swap.s
         generic/dup.s
-        generic/drop.s)
+        generic/drop.s
+        generic/tuck.s
+        generic/over.s)

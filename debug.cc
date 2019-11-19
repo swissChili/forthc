@@ -26,4 +26,7 @@ unsigned get_line(token::token t) {
         return v->line;
     else if (auto v = std::get_if<token::eof>(&t))
         return v->line;
+
+    // Execution should never get here, but im doing this to fix the warning
+    return 0;
 }
