@@ -77,6 +77,10 @@ namespace assembly {
         return *this;
     }
 
+    std::string function::get_string(std::string id) {
+        return name + "_str_" + id;
+    }
+
     std::string function::assemble() {
         std::ostringstream code;
 

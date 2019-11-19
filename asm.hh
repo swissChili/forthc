@@ -42,6 +42,7 @@ namespace assembly {
         explicit function(std::string name) : name(std::move(name)) {}
         function &operator<<(std::string instruction);
         function &operator<<(std::list<std::string> insts);
+        std::string get_string(std::string id);
         std::string assemble();
     };
 }

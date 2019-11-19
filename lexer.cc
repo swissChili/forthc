@@ -9,7 +9,7 @@ lexer::lexer(std::string f) {
 }
 
 void lexer::error(std::string s) {
-    std::cerr << "Error on line " << line << ": " << s << std::endl;
+    std::cerr << "Error on line " << line + 1 << ": " << s << std::endl;
     throw s;
 }
 
@@ -35,6 +35,50 @@ std::list<token::token> lexer::lex() {
     //std::cout << file.good();
 
     while ((c = file.get())) {
+        // std::cout << c << line_comment << std::endl;
+
+        if (s == string) {
+            switch (c) {
+                case '\n':
+                    buf += "\\n";
+                    line++;
+                    break;
+                case '\\':
+                    s = string_escape;
+                    break;
+                case -1:
+                    error("Expected string to end but reached end of file");
+                    break;
+                case '"':
+                    tokens.emplace_back(token::string{buf, line});
+                    s = none;
+                    break;
+                default:
+                    buf.push_back(c);
+            }
+            continue;
+        } else if (s == string_escape) {
+            switch (c) {
+                case 'n':
+                    buf += "\\n";
+                    break;
+                case 't':
+                    buf.push_back('\t');
+                    break;
+                case '\\':
+                    buf += "\\\\";
+                    break;
+                case '"':
+                    buf += "\\\"";
+                    break;
+                default:
+                    error("Invalid escape string: \\" + std::to_string(c));
+                    break;
+            }
+            s = string;
+            continue;
+        }
+
         if (c == '\n') {
             line++;
 
@@ -46,8 +90,9 @@ std::list<token::token> lexer::lex() {
             return tokens;
         }
 
-        if (line_comment)
+        if (line_comment) {
             continue;
+        }
 
         if ((c >= 'a' && c <= 'z')
          || (c >= 'A' && c <= 'Z')
@@ -59,6 +104,8 @@ std::list<token::token> lexer::lex() {
          || c == '^') {
             buf.push_back(c);
             s = word;
+        } else if (c == '\\') {
+            line_comment = true;
         } else if ((c >= '0' && c <= '9')) {
             buf.push_back(c);
             s = whole;
@@ -80,28 +127,18 @@ std::list<token::token> lexer::lex() {
             s = none;
             buf = "";
         } else if (c == '"') {
-            if (s == string) {
-                tokens.emplace_back(token::string{buf, line});
-                s = none;
-                buf = "";
-            } else if (s == none) {
+            if (s == none) {
                 s = string;
             } else if (s == string_escape) {
                 buf.push_back(c);
                 s = string;
-            }
-        } else if (c == '\\') {
-            if (s == string) {
-                s = string_escape;
             } else {
-                line_comment = true;
+                emplace_buf(buf);
+                s = string;
+                buf = "";
             }
         } else {
-            if (c == string) {
-                buf.push_back(c);
-            } else {
-                error("Unexpected char `" + std::to_string(c) + "`");
-            }
+            error("Unexpected char `" + std::to_string(c) + "`");
         }
     }
 

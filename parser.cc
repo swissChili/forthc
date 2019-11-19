@@ -4,6 +4,7 @@
 #include "parser.hh"
 #include "asm.hh"
 #include "debug.hh"
+#include "random.hh"
 
 void parser::error(std::string message, token::token &t) {
     std::cerr
@@ -20,6 +21,12 @@ bool parser::parse_instruction(s::function &fn) {
         return true;
     } else if (auto whole = std::get_if<token::whole>(&tokens.front())) {
         fn << s::push(whole->val);
+        return true;
+    } else if (auto string = std::get_if<token::string>(&tokens.front())) {
+        std::string id = random_string();
+        fn.strings[id] = string->val;
+
+        fn << s::push("$" + fn.get_string(id));
         return true;
     } else return false;
 }
