@@ -57,7 +57,7 @@ just segfault. I'd like to implement warnings in the compiler for doing things
 you probably shouldn't be (like dereferencing an integer).
 
 The code above defines a function named square with `: square`. The code until
-the `;`` is the body of the function. The first instruction (called a word in
+the `;` is the body of the function. The first instruction (called a word in
 forth) is `dup`, which duplicates the top item on the stack (in this case, the
 number to be squared). Then it calls `*` to multiply the top two items on the
 stack and replace them with their product. Note that all subroutines in forth
