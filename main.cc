@@ -15,15 +15,7 @@ int main() {
     add_inst.push_back(s::pop(s::rbx));
     add_inst.push_back(s::add(s::rax, s::rbx));
     add_inst.push_back(s::push(s::rax));
-
     macros["+"] = add_inst;
-
-    std::list<std::string> dup_inst;
-    dup_inst.push_back(s::pop(s::rax));
-    dup_inst.push_back(s::push(s::rax));
-    dup_inst.push_back(s::push(s::rax));
-
-    macros["dup"] = dup_inst;
 
     std::cerr << "Parsing test.forth" << std::endl;
     lexer l("../test.forth");

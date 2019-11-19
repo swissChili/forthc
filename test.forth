@@ -1,2 +1,3 @@
 : dbl dup + ;
-: main 23 dbl ;
+: mainnnn 23 dbl ;
+: main 6 2 drop 3 swap ;

@@ -12,11 +12,12 @@ streq:
     mov $1, %rdi
 
 streq.loop:
-    cmpb (%rax), (%rbx)
+    mov (%rax), %dx
+    cmpb %dl, (%rbx)
     jne streq.ne
 
     # String is over (\0)
-    cmpb $0, %rax
+    cmpb $0, %al
     je streq.done
 
     inc %rax
@@ -28,6 +29,8 @@ streq.ne:
     mov $0, %rdi
 
 streq.done:
+    push %rdi
+
     mov (%rbp), %rbx
     sub $8, %rbp
     jmp *%rbx

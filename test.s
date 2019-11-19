@@ -2,7 +2,7 @@
 
 
 epic_str:
-    .string "Hello\n"
+    .string "Hello World\n"
 
 dbl:
     # [ 0 8 16 24 ]
@@ -30,11 +30,12 @@ main:
     #call dbl
 
     push $epic_str
-    call puts
+    call puti
+
+    xor %rax, %rax
 
     mov (%rbp), %rbx
     # [ 0 8 16 24 ]
     #   ^
     sub $8, %rbp
-    mov $0, %rax
     jmp *%rbx
