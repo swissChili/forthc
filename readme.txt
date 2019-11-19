@@ -4,6 +4,57 @@ This is a simple compiler for the Forth programming language. The only supported
 architecture will be x64. I aim to support both Windows and POSIX systems, but
 so far only Linux is supported.
 
+This compiler compiles a dialect of Forth that I've dubbed nforth. It should be
+familiar to any Forth programmer (not much is changed), but I've made some
+changes to make the language more enjoyable for the average C programmer. Some
+of these things involve making the string syntax sane, changing the way that
+variable references are passed on the stack (which should only affect those
+interested in modifying the compiler or writing native words anyway), and making
+essentially everything a compile-only word. What that means is you can no longer
+write something like this:
+
+    : square dup * ;
+    4 square .         \-> 16
+
+Instead, you would have to write the only slightly less convenient
+
+   : square dup * ;
+   : main 4 square . ; \-> 16
+
+This is just because it's a lot simpler to write a compiler if there is a set
+entry point (main) rather than having to get all the top-level instructions and
+throw them into a function.
+
+                        ~~ programming in forth ~~
+
+Forth, unlike C, Java, or whatever new language is in fashion this week, is a
+stack-based language. This means that almost everything is done on the stack.
+Here is an example of a function that returns the square of an integer in C and
+in Forth. Note that the Forth code can be compiled by forthc even in it's
+current state.
+
+    int square ( int num )
+    {
+        return int * int;
+    }
+
+and in Forth:
+
+    : square dup * ;
+
+The first thing you'll probably notice is that Forth doesn't have types. Like
+Python (to an extent), it is dynamically typed. Unlike Python however, if you
+mess up with the types, there won't be any type coersion and you'll probably
+just segfault. I'd like to implement warnings in the compiler for doing things
+you probably shouldn't be (like dereferencing an integer).
+
+The code above defines a function named square with `: square'. The code until
+the `;' is the body of the function. The first instruction (called a word in
+forth) is `dup', which duplicates the top item on the stack (in this case, the
+number to be squared). Then it calls `*' to multiply the top two items on the
+stack and replace them with their product. Note that all subroutines in forth
+share the same stack, so there is no need to explicitly return a value.
+
                               ~~ building ~~
 
 Both the compiler and the standard library should be built with cmake. You will
