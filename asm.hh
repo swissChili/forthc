@@ -24,8 +24,11 @@ namespace assembly {
     std::string pop(std::string to);
     std::string add(std::string a, std::string b);
     std::string add(std::string a, long b);
+    std::string mul(std::string a);
+    std::string div(std::string a);
     std::string sub(std::string a, std::string b);
     std::string sub(std::string a, long b);
+    std::string xor_(std::string a, std::string b);
     std::string call(std::string fn);
     std::string deref(const std::string& val);
     std::string mov(std::string t, std::string s);

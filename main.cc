@@ -7,15 +7,24 @@
 
 namespace s = assembly;
 
+std::list<std::string> binary_rax_rbx(std::string does) {
+    std::list<std::string> inst;
+    inst.push_back(s::pop(s::rbx));
+    inst.push_back(s::pop(s::rax));
+    inst.push_back(does);
+    inst.push_back(s::push(s::rax));
+
+    return inst;
+}
+
 int main() {
     std::map<std::string, std::list<std::string>> macros;
 
-    std::list<std::string> add_inst;
-    add_inst.push_back(s::pop(s::rax));
-    add_inst.push_back(s::pop(s::rbx));
-    add_inst.push_back(s::add(s::rax, s::rbx));
-    add_inst.push_back(s::push(s::rax));
-    macros["+"] = add_inst;
+    macros["+"] = binary_rax_rbx(s::add(s::rax, s::rbx));
+    macros["-"] = binary_rax_rbx(s::sub(s::rax, s::rbx));
+    macros["^"] = binary_rax_rbx(s::xor_(s::rax, s::rbx));
+    macros["*"] = binary_rax_rbx(s::mul(s::rbx));
+    macros["/"] = binary_rax_rbx(s::div(s::rbx));
 
     std::cerr << "Parsing test.forth" << std::endl;
     lexer l("../test.forth");

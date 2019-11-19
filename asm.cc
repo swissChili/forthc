@@ -34,6 +34,18 @@ namespace assembly {
         return "\tadd $" + std::to_string(b) + ", " + a;
     }
 
+    std::string xor_(std::string a, std::string b) {
+        return "\txor " + b + ", " + a;
+    }
+
+    std::string mul(std::string a) {
+        return "\tmul " + a;
+    }
+
+    std::string div(std::string a) {
+        return "\tdiv " + a;
+    }
+
     std::string sub(std::string a, std::string b) {
         return "\tsub " + b + ", " + a;
     }

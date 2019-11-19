@@ -1,3 +1,5 @@
 : dbl dup + ;
-: mainnnn 23 dbl ;
-: main 6 2 drop 3 swap ;
+: square dup * ;
+: half 2 / ;
+: main 6 2 - dbl square half ;
+
