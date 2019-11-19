@@ -16,6 +16,11 @@ namespace token {
         unsigned line;
     };
 
+    struct string {
+        std::string val;
+        unsigned line;
+    };
+
     struct start_fn {
         unsigned line;
     };
@@ -26,7 +31,7 @@ namespace token {
         unsigned line;
     };
 
-    typedef std::variant<word, whole, start_fn, end_fn, eof> token;
+    typedef std::variant<word, whole, start_fn, end_fn, eof, string> token;
 }
 
 

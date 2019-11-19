@@ -10,6 +10,8 @@ enum state {
     none,
     word,
     whole,
+    string,
+    string_escape,
 };
 
 class lexer {
