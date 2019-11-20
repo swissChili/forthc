@@ -16,4 +16,8 @@ add_library(fstd STATIC
         generic/dup.s
         generic/drop.s
         generic/tuck.s
-        generic/over.s)
+        generic/over.s
+        generic/equal.s
+        generic/spaceship.s)
+
+install(TARGETS forthc DESTINATION . OPTIONAL)

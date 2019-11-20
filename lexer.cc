@@ -3,8 +3,12 @@
 #include "lexer.hh"
 
 lexer::lexer(std::string f) {
-    file.open(f, std::ifstream::in);
-    std::cerr << "Opened " << f << std::endl;
+    if (f != "-") {
+        file.open(f, std::ifstream::in);
+        std::cerr << "Opened " << f << std::endl;
+    } else {
+        file.open("/dev/stdin", std::ifstream::in);
+    }
     line = 0;
 }
 
@@ -101,7 +105,10 @@ std::list<token::token> lexer::lex() {
          || c == '-'
          || c == '/'
          || c == '*'
-         || c == '^') {
+         || c == '^'
+         || c == '='
+         || c == '<'
+         || c == '>') {
             buf.push_back(c);
             s = word;
         } else if (c == '\\') {

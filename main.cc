@@ -17,7 +17,13 @@ std::list<std::string> binary_rax_rbx(std::string does) {
     return inst;
 }
 
-int main() {
+std::list<std::string> call_alias(std::string named) {
+    std::list<std::string> inst;
+    inst.push_back(s::call(named));
+    return inst;
+}
+
+int main(int argc, char **argv) {
     std::map<std::string, std::list<std::string>> macros;
 
     macros["+"] = binary_rax_rbx(s::add(s::rax, s::rbx));
@@ -25,9 +31,15 @@ int main() {
     macros["^"] = binary_rax_rbx(s::xor_(s::rax, s::rbx));
     macros["*"] = binary_rax_rbx(s::mul(s::rbx));
     macros["/"] = binary_rax_rbx(s::div(s::rbx));
+    macros["="] = call_alias("equal");
+    macros["<=>"] = call_alias("spaceship");
 
-    std::cerr << "Parsing test.forth" << std::endl;
-    lexer l("../test.forth");
+    std::string file = "-";
+    if (argc > 1) {
+        file = argv[1];
+    }
+
+    lexer l(file);
     std::list<token::token> tokens = l.lex();
 
     /*for (const auto& t : tokens) {
