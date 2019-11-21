@@ -13,7 +13,8 @@ GENERIC_OBJS = \
 	build/generic/tuck.o\
 	build/generic/over.o\
 	build/generic/equal.o\
-	build/generic/spaceship.o
+	build/generic/spaceship.o\
+	build/generic/third.o
 
 BOOTSTRAP_OBJS = \
 	build/bootstrap/endl.o\

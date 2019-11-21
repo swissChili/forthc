@@ -33,6 +33,7 @@ int main(int argc, char **argv) {
     macros["/"] = binary_rax_rbx(s::div(s::rbx));
     macros["="] = call_alias("equal");
     macros["<=>"] = call_alias("spaceship");
+    macros["."] = call_alias("puti");
 
     std::string file = "-";
     if (argc > 1) {

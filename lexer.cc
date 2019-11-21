@@ -108,12 +108,13 @@ std::list<token::token> lexer::lex() {
          || c == '^'
          || c == '='
          || c == '<'
-         || c == '>') {
+         || c == '>'
+         || c == '.') {
             buf.push_back(c);
             s = word;
         } else if (c == '\\') {
             line_comment = true;
-        } else if ((c >= '0' && c <= '9')) {
+        } else if ((c >= '0' && c <= '9') || c == '-') {
             buf.push_back(c);
             s = whole;
         } else if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
