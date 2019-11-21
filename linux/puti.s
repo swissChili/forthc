@@ -1,46 +1,53 @@
 .global puti
 
-# Puti prints an integer to stdout
-# takes a 64 bit int from the stack
+
 puti:
     add $8, %rbp
     pop (%rbp)
 
-    # Local Variable (on callstack) for string
-    add $20, %rbp
+    pop %rax
 
-    # char *rsi = string_end;
-    mov %rbp, %rsi
-    # the value
-    pop %rdi
-    # rbx = 10
-    mov $10, %rbx
+    # Clear rdx
+    xorl %edx, %edx
+    # Move 10 to rbx
+    movq $10, %rbx
+    movq %rsp, %rcx
+    decq %rcx
+    xorq %r15, %r15
+    # Sign extend and check if negative
+    cmpl $0, %eax
+    jge .printloop
+    # So it's negative...
+    negq %rax
+    movq $1, %r15
 
-puti.loop:
-    # --rsi;
-    dec %rsi
-    # rax = rdi
-    mov %rdi, %rax
-    # rdx = 0
-    xor %rdx, %rdx
+.printloop:
+    movq $10, %r14
+    divq %r14
+    addb $0x30, %dl
+    movb %dl, (%rcx)
+    xorl %edx, %edx
+    # If the quotient is zero, stop
+    cmpl $0, %eax
+    je .doprint
+    decq %rcx
+    jmp .printloop
 
-    div %rbx
+.doprint:
+    # Handle if negative
+    cmpq $0, %r15
+    je .finishprint
+    decq %rcx
+    movb $'-', (%rcx)
 
-    # remainder in %rdx
-    # rdx += '0'
-    add $48, %rdx
-    movb %dl, (%rsi)
-
-    mov %rax, %rdi
-
-    cmpb $0, (%rdi)
-    je puti.done
-
-    jmp puti.loop
-
-puti.done:
-    # Drop the local variable
-    sub $20, %rbp
+.finishprint:
+    movl $1, %eax
+    movl $1, %edi
+    leaq (%rcx), %rsi
+    movq %rsp, %r10
+    subq %rcx, %r10
+    movq %r10, %rdx
+    syscall
 
     mov (%rbp), %rbx
     sub $8, %rbp
