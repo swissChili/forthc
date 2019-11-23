@@ -29,6 +29,20 @@ This is just because it's a lot simpler to write a compiler if there is a set
 entry point (main) rather than having to get all the top-level instructions and
 throw them into a function.
 
+## Implemented Features
+
+This compiler is very much a work in progress, but I have already implemented
+many features that make it usable for small tasks. Here is a fairly complete
+list of features implemented. For a complete list of implemented words see
+the assembly and forth files in generic/ linux/ and bootstrap/
+
+- Variables, `!` and `@`
+- Conditions `if` ... `else` ... `then`
+- Subroutine Declarations `:` ... `;`
+- Integer Literals
+- Calling Words
+- Line Comments `\` ... `<NL>`
+
 ## Programming in Forth
 
 Forth, unlike C, Java, or whatever new language is in fashion this week, is a
