@@ -61,8 +61,19 @@ bool parser::parse_instruction(s::function &fn) {
             }
         } else if (word->val == "else" || word->val == "then") {
             return false;
-        } else
+        } else if (word->val == "variable") {
+            tokens.pop_front();
+            if (auto var_name = std::get_if<token::word>(&tokens.front())) {
+                fn.add_variable(var_name->val);
+            } else {
+                error("Expected variable name word, found other token.", tokens.front());
+                return false;
+            }
+        } else if (fn.var_exists(word->val)) {
+            fn << fn.get_var_ref(word->val);
+        } else {
             fn << s::call(word->val);
+        }
         return true;
     } else if (auto whole = std::get_if<token::whole>(&tokens.front())) {
         fn << s::push(whole->val);

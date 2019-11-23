@@ -34,6 +34,8 @@ int main(int argc, char **argv) {
     macros["="] = call_alias("equal");
     macros["<=>"] = call_alias("spaceship");
     macros["."] = call_alias("puti");
+    macros["!"] = call_alias("setptr");
+    macros["@"] = call_alias("getptr");
 
     std::string file = "-";
     if (argc > 1) {

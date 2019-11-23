@@ -34,16 +34,29 @@ namespace assembly {
     std::string mov(std::string t, std::string s);
 
     class function {
+    private:
+        // A map of a variable name to its %rbp offset.
+        // A variable should then be accessed with offset(%rbp)
+        // %rbp isn't increased as variables are allocated so that they can be
+        // referenced as they are defined. This means it is important to xor
+        // each variable before the function exits
+        std::map<std::string, unsigned short> variables;
+        unsigned allocated_size;
+
     public:
         std::map<std::string, std::string> strings;
         std::string name;
         std::list<std::string> instructions;
 
-        explicit function(std::string name) : name(std::move(name)) {}
+        explicit function(std::string name) : name(std::move(name)), allocated_size(0) {}
         function &operator<<(std::string instruction);
         function &operator<<(std::list<std::string> insts);
         std::string get_string(std::string id);
         std::string assemble();
+        void add_variable(std::string named);
+        std::string get_variable(std::string named);
+        std::list<std::string> get_var_ref(std::string named);
+        bool var_exists(std::string named);
     };
 }
 

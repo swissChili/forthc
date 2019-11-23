@@ -5,7 +5,7 @@
 namespace assembly {
     std::string mov(std::string inst, long num) {
 #if ASSEMBLER == GAS
-        return "\tmov " + inst + ", $" + std::to_string(num);
+        return "\tmovq $" + std::to_string(num) + ", " + inst;
 #endif
     }
 
@@ -94,20 +94,51 @@ namespace assembly {
                 << "\t.string \"" << str << "\"\n";
         }
 
+        // Variable macros
+        for (auto const &[key, val] : variables) {
+            code << ".set " + name + "_var_" + key + ", -" + std::to_string(allocated_size - val) + "\n";
+        }
+
         code
             << name << ":\n"
             << add(rbp, 8) << std::endl
-            << pop(deref(rbp)) << std::endl;
+            << pop(deref(rbp)) << std::endl
+            << add(rbp, allocated_size) << std::endl;
 
         for (auto const &inst : instructions) {
             code << inst << "\n";
         }
 
         code
+            << sub(rbp, allocated_size) << std::endl
             << mov(rbx, deref(rbp)) << std::endl
             << sub(rbp, 8) << std::endl
             << "\tjmp *%rbx\n";
 
         return code.str();
+    }
+
+    void function::add_variable(std::string named) {
+        // allocate another 64bit variable
+        allocated_size += 8;
+        variables[named] = allocated_size;
+    }
+
+    bool function::var_exists(std::string named) {
+        return variables.count(named) > 0;
+    }
+
+    std::string function::get_variable(std::string named) {
+        return "$" + name + "_var_" + named;
+    }
+
+    std::list<std::string> function::get_var_ref(std::string named) {
+        std::list<std::string> inst;
+
+        inst.push_back(mov(rax, rbp));
+        inst.push_back(add(rax, "$" + name + "_var_" + named));
+        inst.push_back(push(rax));
+
+        return inst;
     }
 }

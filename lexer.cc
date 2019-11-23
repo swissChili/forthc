@@ -109,7 +109,9 @@ std::list<token::token> lexer::lex() {
          || c == '='
          || c == '<'
          || c == '>'
-         || c == '.') {
+         || c == '.'
+         || c == '!'
+         || c == '@') {
             buf.push_back(c);
             s = word;
         } else if (c == '\\') {
