@@ -58,11 +58,18 @@ std::list<token::token> lexer::lex() {
     char c;
     std::string buf;
     bool line_comment = false;
+    unsigned comment_depth = 0;
 
     //std::cout << file.good();
 
     while ((c = file.get())) {
-        // std::cout << c << line_comment << std::endl;
+        if (c == '(') {
+            comment_depth++;
+            continue;
+        } else if (c == ')') {
+            comment_depth--;
+            continue;
+        }
 
         if (s == string) {
             switch (c) {
@@ -103,6 +110,9 @@ std::list<token::token> lexer::lex() {
                     break;
             }
             s = string;
+            continue;
+        } else if (comment_depth > 0) {
+            // Ignore block comments
             continue;
         }
 

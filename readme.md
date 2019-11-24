@@ -5,7 +5,7 @@ architecture will be x64. I aim to support both Windows and POSIX systems, but
 so far only Linux is supported.
 
 This compiler compiles a dialect of Forth that I've dubbed nforth. It should be
-familiar to any Forth programmer (not much is changed), but I've made some
+familiar to any Forth programmer (not much has changed), but I've made some
 changes to make the language more enjoyable for the average C programmer. Some
 of these things involve making the string syntax sane, changing the way that
 variable references are passed on the stack (which should only affect those
@@ -42,6 +42,7 @@ the assembly and forth files in generic/ linux/ and bootstrap/
 - Integer Literals
 - Calling Words
 - Line Comments `\` ... `<NL>`
+- Loops `do` ... `loop`
 
 ## Programming in Forth
 
