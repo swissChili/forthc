@@ -32,6 +32,7 @@ namespace assembly {
     std::string call(std::string fn);
     std::string deref(const std::string& val);
     std::string mov(std::string t, std::string s);
+    std::string cmp(std::string a, std::string b);
 
     class function {
     private:
@@ -56,6 +57,7 @@ namespace assembly {
         void add_variable(std::string named);
         std::string get_variable(std::string named);
         std::list<std::string> get_var_ref(std::string named);
+        std::list<std::string> get_var_ref_in(std::string named, std::string reg);
         bool var_exists(std::string named);
     };
 }

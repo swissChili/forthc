@@ -16,6 +16,54 @@ bool parser::parse_instruction(s::function &fn) {
     if (auto word = std::get_if<token::word>(&tokens.front())) {
         if (macro_words.find(word->val) != macro_words.end()) {
             fn << macro_words[word->val];
+        } else if (word->val == "do") {
+            // ( limit index do ... loop )
+            std::string loop_id = random_string();
+            std::string limit_name = "loop_" + loop_id + "_limit";
+            std::string index_name = "loop_" + loop_id + "_index";
+            std::string start_label = fn.name + "_loop_start_" + loop_id;
+            std::string end_label = fn.name + "_loop_end_" + loop_id;
+
+            fn.add_variable(limit_name);
+            fn.add_variable(index_name);
+
+            fn
+                << fn.get_var_ref_in(index_name, s::rax)
+                << fn.get_var_ref_in(limit_name, s::rbx)
+                << s::pop(s::deref(s::rax))
+                << s::pop(s::deref(s::rbx))
+
+                // Start the loop
+                << start_label + ":"
+                << s::mov(s::rcx, s::deref(s::rax))
+                << s::mov(s::rdx, s::deref(s::rbx))
+                << s::cmp(s::rdx, s::rcx)
+                << "\tje " + end_label + "\n";
+
+            do tokens.pop_front();
+            while (parse_instruction(fn));
+
+            fn
+                << ""
+                << fn.get_var_ref_in(index_name, s::rax)
+                << fn.get_var_ref_in(limit_name, s::rbx)
+                << "\tincq " + s::deref(s::rax);
+
+
+            if (auto l = std::get_if<token::word>(&tokens.front())) {
+                if (l->val == "loop") {
+                    fn
+                        << "\tjmp " + start_label
+                        << end_label + ":";
+                    return true;
+                } else {
+                    error("Expected `else` after do ..., found word " + l->val, tokens.front());
+                    return false;
+                }
+            } else {
+                error("Expected word after do ...", tokens.front());
+                return false;
+            }
         } else if (word->val == "if") {
             std::string label = random_string();
 
@@ -59,7 +107,7 @@ bool parser::parse_instruction(s::function &fn) {
                 error("Expected to find `else` or `then`", tokens.front());
                 return false;
             }
-        } else if (word->val == "else" || word->val == "then") {
+        } else if (word->val == "else" || word->val == "then" || word->val == "loop") {
             return false;
         } else if (word->val == "variable") {
             tokens.pop_front();
@@ -99,11 +147,13 @@ s::function parser::parse_function() {
 
     s::function fn{name_word->val};
 
+    bool is_main = name_word->val == "main";
 
-    do tokens.pop_front();
+
+    do if (!tokens.empty()) tokens.pop_front();
     while (parse_instruction(fn));
 
-    if (name_word->val == "main") {
+    if (is_main) {
         // Return the top of the stack
         fn << s::pop(s::rax);
     }

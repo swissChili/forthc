@@ -63,6 +63,9 @@ namespace assembly {
         return "\tmov " + s + ", " + t;
     }
 
+    std::string cmp(std::string a, std::string b) {
+        return "\tcmp " + b + ", " + a;
+    }
 
     function &function::operator<<(std::string inst) {
         instructions.push_back(inst);
@@ -138,6 +141,15 @@ namespace assembly {
         inst.push_back(mov(rax, rbp));
         inst.push_back(add(rax, "$" + name + "_var_" + named));
         inst.push_back(push(rax));
+
+        return inst;
+    }
+
+    std::list<std::string> function::get_var_ref_in(std::string named,
+                                                    std::string reg) {
+        std::list<std::string> inst;
+        inst.push_back(mov(reg, rbp));
+        inst.push_back(add(reg, "$" + name + "_var_" + named));
 
         return inst;
     }
