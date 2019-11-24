@@ -9,6 +9,7 @@ puts:
 
     call strlen
     call writes
+    pop %rax
 
     mov (%rbp), %rbx
     sub $8, %rbp

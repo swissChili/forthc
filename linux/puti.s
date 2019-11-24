@@ -1,11 +1,11 @@
 .global puti
 
-
+# Shamelessly stolen from JJ
 puti:
     add $8, %rbp
     pop (%rbp)
 
-    pop %rax
+    mov (%rsp), %rax
 
     # Clear rdx
     xorl %edx, %edx

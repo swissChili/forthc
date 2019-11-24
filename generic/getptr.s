@@ -4,7 +4,7 @@ getptr:
     add $8, %rbp
     pop (%rbp)
 
-    mov (%rsp), %rax
+    pop %rax
     push (%rax)
 
     mov (%rbp), %rbx

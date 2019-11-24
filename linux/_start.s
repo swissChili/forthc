@@ -1,6 +1,8 @@
 .global _start
+.global _stack_top_addr
 # expects main: to be defined
 # returns the return value from main (%rax) to the kernel
+
 _start:
     # Get the address to the beginning of the callstack using sys_brk(0)
     mov $12, %rax
