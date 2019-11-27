@@ -4,7 +4,8 @@ PLATFORM_OBJS = \
 	build/linux/writes.o\
 	build/linux/strlen.o\
 	build/linux/streq.o\
-	build/linux/puti.o
+	build/linux/puti.o\
+	build/linux/key.o
 
 GENERIC_OBJS = \
 	build/generic/swap.o\
@@ -16,11 +17,15 @@ GENERIC_OBJS = \
 	build/generic/spaceship.o\
 	build/generic/third.o\
 	build/generic/setptr.o\
-	build/generic/getptr.o
+	build/generic/getptr.o\
+	build/generic/getbyteptr.o\
+	build/generic/lessthan.o\
+	build/generic/greaterthan.o
 
 BOOTSTRAP_OBJS = \
 	build/bootstrap/endl.o\
-	build/bootstrap/booleans.o
+	build/bootstrap/booleans.o\
+	build/bootstrap/spaces.o
 
 all: setup build/libfstd.a
 

@@ -7,5 +7,6 @@
 
 \ The entry function
 : main ( -- )
-    10 0 do say_hi loop 0
+    \ 10 0 do say_hi loop 0
+    key .
 ;

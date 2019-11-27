@@ -16,6 +16,49 @@ bool parser::parse_instruction(s::function &fn) {
     if (auto word = std::get_if<token::word>(&tokens.front())) {
         if (macro_words.find(word->val) != macro_words.end()) {
             fn << macro_words[word->val];
+        } else if (word->val == "begin") {
+            std::string loop_id = random_string();
+            std::string cmp_label = "while_" + loop_id + "_begin";
+            std::string end_label = "while_" + loop_id + "_end";
+
+            fn << cmp_label + ":";
+
+            do tokens.pop_front();
+            while (parse_instruction(fn));
+
+            // TODO: fix repeating code
+            if (auto w = std::get_if<token::word>(&tokens.front())) {
+                if (w->val != "while") {
+                    error("Expected `while` found `" + w->val + "`", tokens.front());
+                    return false;
+                }
+            } else {
+                error("Expected `while` found other token", tokens.front());
+                return false;
+            }
+
+            fn
+                << s::pop(s::rax)
+                << s::cmp(s::rax, "$0")
+                << "\tje " + end_label;
+
+            do tokens.pop_front();
+            while (parse_instruction(fn));
+
+            if (auto w = std::get_if<token::word>(&tokens.front())) {
+                if (w->val != "repeat") {
+                    error("Expected `repeat` found `" + w->val + "`", tokens.front());
+                    return false;
+                }
+            } else {
+                error("Expected `repeat` found other token", tokens.front());
+                return false;
+            }
+
+            fn
+                << "\tjmp " + cmp_label
+                << end_label + ":";
+
         } else if (word->val == "do") {
             // ( limit index do ... loop )
             std::string loop_id = random_string();
@@ -107,7 +150,11 @@ bool parser::parse_instruction(s::function &fn) {
                 error("Expected to find `else` or `then`", tokens.front());
                 return false;
             }
-        } else if (word->val == "else" || word->val == "then" || word->val == "loop") {
+        } else if (word->val == "else"
+                || word->val == "then"
+                || word->val == "loop"
+                || word->val == "while"
+                || word->val == "repeat") {
             return false;
         } else if (word->val == "variable") {
             tokens.pop_front();

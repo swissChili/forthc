@@ -10,8 +10,8 @@ spaceship:
     add $8, %rbp
     pop (%rbp)
 
-    mov (%rsp), %rax
-    mov 8(%rsp), %rbx
+    pop %rax
+    pop %rbx
 
     cmp %rbx, %rax
     je spaceship.eq
