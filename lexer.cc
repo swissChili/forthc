@@ -146,11 +146,17 @@ std::list<token::token> lexer::lex() {
         }
 
         if (is_alpha(c) || is_reserved_safe(c)) {
+            if (await_include)
+                error("nforth requires that included filenames be quoted.");
+
             buf.push_back(c);
             s = word;
         } else if (c == '\\') {
             line_comment = true;
         } else if (is_num(c) || c == '-') {
+            if (await_include)
+                error("nforth requires that included filenames be quoted.");
+
             buf.push_back(c);
             s = whole;
         } else if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
