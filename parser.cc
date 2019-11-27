@@ -12,6 +12,55 @@ void parser::error(std::string message, token::token &t) {
     throw message;
 }
 
+std::string call_escape(std::string word) {
+    std::string escaped;
+
+    for (auto c : word) {
+        switch (c) {
+            case '-':
+                escaped += "__DASH__";
+                break;
+            case '+':
+                escaped += "__PLUS__";
+                break;
+            case '*':
+                escaped += "__STAR__";
+                break;
+            case '/':
+                escaped += "__SLASH__";
+                break;
+            case '^':
+                escaped += "__CARET__";
+                break;
+            case '=':
+                escaped += "__EQUALS__";
+                break;
+            case '<':
+                escaped += "__LT__";
+                break;
+            case '>':
+                escaped += "__GT__";
+                break;
+            case '.':
+                escaped += "__DOT__";
+                break;
+            case ',':
+                escaped += "__COMMA__";
+                break;
+            case '@':
+                escaped += "__AT__";
+                break;
+            case '!':
+                escaped += "__EXCLAMATION__";
+                break;
+            default:
+                escaped.push_back(c);
+        }
+    }
+
+    return escaped;
+}
+
 bool parser::parse_instruction(s::function &fn) {
     if (auto word = std::get_if<token::word>(&tokens.front())) {
         if (macro_words.find(word->val) != macro_words.end()) {
@@ -167,7 +216,7 @@ bool parser::parse_instruction(s::function &fn) {
         } else if (fn.var_exists(word->val)) {
             fn << fn.get_var_ref(word->val);
         } else {
-            fn << s::call(word->val);
+            fn << s::call(call_escape(word->val));
         }
         return true;
     } else if (auto whole = std::get_if<token::whole>(&tokens.front())) {
@@ -192,7 +241,7 @@ s::function parser::parse_function() {
     if (!name_word)
         error("Expected a word as the function name", tokens.front());
 
-    s::function fn{name_word->val};
+    s::function fn{call_escape(name_word->val)};
 
     bool is_main = name_word->val == "main";
 
