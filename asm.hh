@@ -43,6 +43,7 @@ namespace assembly {
         // referenced as they are defined. This means it is important to xor
         // each variable before the function exits
         std::map<std::string, unsigned short> variables;
+        std::map<std::string, std::list<std::string>> aliases;
         unsigned allocated_size;
 
     public:
@@ -55,11 +56,14 @@ namespace assembly {
         function &operator<<(std::list<std::string> insts);
         std::string get_string(std::string id);
         std::string assemble();
-        void add_variable(std::string named);
-        std::string get_variable(std::string named);
-        std::list<std::string> get_var_ref(std::string named);
-        std::list<std::string> get_var_ref_in(std::string named, std::string reg);
-        bool var_exists(std::string named);
+        void add_variable(const std::string& named);
+        void add_var_alias(const std::string& from, std::string to);
+        void remove_var_alias(const std::string& named);
+        std::string resolve_alias(const std::string& named);
+        std::string get_variable(const std::string& named);
+        std::list<std::string> get_var_ref(const std::string& named);
+        std::list<std::string> get_var_ref_in(const std::string& named, const std::string& reg);
+        bool var_exists(const std::string& named);
     };
 }
 

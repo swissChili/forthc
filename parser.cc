@@ -132,8 +132,12 @@ bool parser::parse_instruction(s::function &fn) {
                 << s::cmp(s::rdx, s::rcx)
                 << "\tje " + end_label + "\n";
 
+            fn.add_var_alias("i", index_name);
+
             do tokens.pop_front();
             while (parse_instruction(fn));
+
+            fn.remove_var_alias("i");
 
             fn
                 << ""
