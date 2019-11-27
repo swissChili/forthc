@@ -1,15 +1,24 @@
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include "lexer.hh"
+#include "debug.hh"
 
 lexer::lexer(std::string f) {
     if (f != "-") {
         file.open(f, std::ifstream::in);
         std::cerr << "Opened " << f << std::endl;
+        int endsat = f.rfind('/');
+        if (endsat == f.npos) {
+            filepath = ".";
+        } else {
+            filepath = f.substr(0, endsat);
+        }
     } else {
         file.open("/dev/stdin", std::ifstream::in);
+        filepath = ".";
     }
-    line = 0;
+    line = 1;
 }
 
 void lexer::error(std::string s) {
@@ -54,10 +63,15 @@ bool is_reserved_safe(char c) {
         || c == '@';
 }
 
+std::string lexer::resolve_path(std::string relative) {
+    return filepath + "/" + relative;
+}
+
 std::list<token::token> lexer::lex() {
     char c;
     std::string buf;
     bool line_comment = false;
+    bool await_include = false;
     unsigned comment_depth = 0;
 
     //std::cout << file.good();
@@ -140,10 +154,30 @@ std::list<token::token> lexer::lex() {
             buf.push_back(c);
             s = whole;
         } else if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
-            emplace_buf(buf);
+            if (await_include) {
+                // Remove the string
+                tokens.pop_back();
 
-            s = none;
-            buf = "";
+                lexer included{resolve_path(buf)};
+                auto included_tokens = included.lex();
+
+                for (auto t : included_tokens) {
+                    if (!std::get_if<token::eof>(&t))
+                        tokens.push_back(std::move(t));
+                }
+                await_include = false;
+                s = none;
+                buf = "";
+            } else if (buf == "include") {
+                await_include = true;
+                s = none;
+                buf = "";
+            } else {
+                emplace_buf(buf);
+
+                s = none;
+                buf = "";
+            }
         } else if (c == ':') {
             emplace_buf(buf);
 

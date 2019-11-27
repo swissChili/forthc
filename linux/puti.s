@@ -5,7 +5,7 @@ puti:
     add $8, %rbp
     pop (%rbp)
 
-    mov (%rsp), %rax
+    pop %rax
 
     # Clear rdx
     xorl %edx, %edx

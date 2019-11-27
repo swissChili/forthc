@@ -233,6 +233,7 @@ bool parser::parse_instruction(s::function &fn) {
 
 s::function parser::parse_function() {
     if (std::get_if<token::start_fn>(&tokens.front()) == nullptr) {
+        debug(tokens.front());
         error("Expected a function", tokens.front());
     }
     tokens.pop_front();
