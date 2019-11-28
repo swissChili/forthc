@@ -73,6 +73,7 @@ std::list<token::token> lexer::lex() {
     bool line_comment = false;
     bool await_include = false;
     unsigned comment_depth = 0;
+    std::string str_prefix;
 
     //std::cout << file.good();
 
@@ -99,6 +100,10 @@ std::list<token::token> lexer::lex() {
                     break;
                 case '"':
                     tokens.emplace_back(token::string{buf, line});
+                    if (str_prefix != "") {
+                        tokens.emplace_back(token::word{str_prefix, line});
+                        str_prefix = "";
+                    }
                     s = none;
                     break;
                 default:
@@ -200,8 +205,12 @@ std::list<token::token> lexer::lex() {
             if (s == none) {
                 s = string;
             } else if (s == string_escape) {
-                buf.push_back(c);
+                buf += "\\\"";
                 s = string;
+            } else if (s == word) {
+                str_prefix = buf + "-string";
+                s = string;
+                buf = "";
             } else {
                 emplace_buf(buf);
                 s = string;

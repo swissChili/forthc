@@ -36,6 +36,7 @@ int main(int argc, char **argv) {
     macros["<"] = call_alias("lessthan");
     macros[">"] = call_alias("greaterthan");
     macros["."] = call_alias("puti");
+    macros[".-string"] = call_alias("puts");
     macros["!"] = call_alias("setptr");
     macros["@"] = call_alias("getptr");
     macros["c@"] = call_alias("getbyteptr");
