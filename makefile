@@ -24,4 +24,3 @@ build/bootstrap/%.o: build/bootstrap/%.s
 	as -o $@ $^
 build/bootstrap/%.s: bootstrap/%.forth build/forthc
 	build/forthc $^ > $@
-

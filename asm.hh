@@ -51,12 +51,13 @@ namespace assembly {
         std::string name;
         std::list<std::string> instructions;
 
-        explicit function(std::string name) : name(std::move(name)), allocated_size(0) {}
+        explicit function(std::string name) : name(std::move(name)), allocated_size(8) {}
         function &operator<<(std::string instruction);
         function &operator<<(std::list<std::string> insts);
         std::string get_string(std::string id);
         std::string assemble();
         void add_variable(const std::string& named);
+        void add_variable(const std::string& named, unsigned sized);
         void add_var_alias(const std::string& from, std::string to);
         void remove_var_alias(const std::string& named);
         std::string resolve_alias(const std::string& named);

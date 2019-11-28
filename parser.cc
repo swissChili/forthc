@@ -211,8 +211,58 @@ bool parser::parse_instruction(s::function &fn) {
             return false;
         } else if (word->val == "variable") {
             tokens.pop_front();
+            auto var_name_token = tokens.front();
             if (auto var_name = std::get_if<token::word>(&tokens.front())) {
-                fn.add_variable(var_name->val);
+                auto name = var_name->val;
+                // This is janky as hell because I don't have propper look ahead
+                tokens.pop_front();
+                auto size_token = tokens.front();
+
+                if (auto size = std::get_if<token::whole>(&size_token)) {
+
+                    tokens.pop_front();
+                    // cells || chars || bytes
+                    auto type_token = tokens.front();
+                    int type_size = 1;
+                    if (auto type = std::get_if<token::word>(&type_token)) {
+                        if (type->val == "cells")
+                            type_size = 8;
+                        else if (type->val == "chars")
+                            type_size = 1;
+                        else if (type->val == "bytes")
+                            type_size = 1;
+                        else {
+                            //tokens.push_front(type_token);
+                            tokens.push_front(size_token);
+                            tokens.push_front(var_name_token);
+                            return true;
+                        }
+
+                        tokens.pop_front();
+                        auto allot_token = tokens.front();
+                        if (auto allot = std::get_if<token::word>(&allot_token)) {
+                            if (allot->val == "allot") {
+                                fn.add_variable(name, size->val * type_size);
+                                return true;
+                            }
+                        } // else
+                        tokens.push_front(type_token);
+                        tokens.push_front(size_token);
+                        tokens.push_front(var_name_token);
+                        for (const auto& to : tokens) debug(to);
+
+                    } else {
+                        //tokens.push_front(type_token);
+                        tokens.push_front(size_token);
+                        tokens.push_front(var_name_token);
+                    }
+                } else {
+                    std::cout << "No size\n";
+                    tokens.push_front(size_token);
+                    tokens.push_front(var_name_token);
+                }
+                fn.add_variable(name);
+                return true;
             } else {
                 error("Expected variable name word, found other token.", tokens.front());
                 return false;
@@ -238,7 +288,7 @@ bool parser::parse_instruction(s::function &fn) {
 s::function parser::parse_function() {
     if (std::get_if<token::start_fn>(&tokens.front()) == nullptr) {
         debug(tokens.front());
-        error("Expected a function", tokens.front());
+        error("Expected a `:`, found other token", tokens.front());
     }
     tokens.pop_front();
 

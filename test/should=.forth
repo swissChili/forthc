@@ -1,8 +1,8 @@
 \ Assert that two things are equal!
-: should= ( description result expected -- )
+: should= ( result expected -- )
     = if
-        puts "\t\t==> Passed" puts endl
+        "\t==> Passed" puts endl
     else
-        puts "\t\t==> Failed" puts endl
+        "\t==> Failed" puts endl
     then
 ;

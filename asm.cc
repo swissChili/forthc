@@ -104,7 +104,6 @@ namespace assembly {
 
         code
             << name << ":\n"
-            << add(rbp, 8) << std::endl
             << pop(deref(rbp)) << std::endl
             << add(rbp, allocated_size) << std::endl;
 
@@ -115,16 +114,20 @@ namespace assembly {
         code
             << sub(rbp, allocated_size) << std::endl
             << mov(rbx, deref(rbp)) << std::endl
-            << sub(rbp, 8) << std::endl
             << "\tjmp *%rbx\n";
 
         return code.str();
     }
 
     void function::add_variable(const std::string& named) {
+        variables[named] = allocated_size;
         // allocate another 64bit variable
         allocated_size += 8;
+    }
+
+    void function::add_variable(const std::string &named, unsigned sized) {
         variables[named] = allocated_size;
+        allocated_size += sized;
     }
 
     bool function::var_exists(const std::string& named) {
