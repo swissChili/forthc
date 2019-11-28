@@ -1,35 +1,13 @@
-PLATFORM_OBJS = \
-	build/linux/_start.o\
-	build/linux/puts.o\
-	build/linux/writes.o\
-	build/linux/strlen.o\
-	build/linux/streq.o\
-	build/linux/puti.o\
-	build/linux/key.o
+PLATFORM_OBJS := $(patsubst %.s,build/%.o,$(wildcard linux/*))
 
-GENERIC_OBJS = \
-	build/generic/swap.o\
-	build/generic/dup.o\
-	build/generic/drop.o\
-	build/generic/tuck.o\
-	build/generic/over.o\
-	build/generic/equal.o\
-	build/generic/spaceship.o\
-	build/generic/third.o\
-	build/generic/setptr.o\
-	build/generic/getptr.o\
-	build/generic/getbyteptr.o\
-	build/generic/lessthan.o\
-	build/generic/greaterthan.o
+GENERIC_OBJS := $(patsubst %.s,build/%.o,$(wildcard generic/*))
 
-BOOTSTRAP_OBJS = \
-	build/bootstrap/endl.o\
-	build/bootstrap/booleans.o\
-	build/bootstrap/spaces.o
+BOOTSTRAP_OBJS := $(patsubst %.forth,build/%.o,$(wildcard bootstrap/*))
 
 all: setup build/libfstd.a
 
 clean:
+	@echo $(BOOTSTRAP_OBJS)
 	rm **/*.o **/*.a
 
 setup:
