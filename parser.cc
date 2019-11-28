@@ -62,7 +62,7 @@ std::string call_escape(std::string word) {
 }
 
 bool parser::parse_instruction(s::function &fn) {
-    if (auto word = std::get_if<token::word>(&tokens.front())) {
+    if (auto word = std::get_if<token::word>(&tokens.front().node)) {
         if (macro_words.find(word->val) != macro_words.end()) {
             fn << macro_words[word->val];
         } else if (word->val == "begin") {
@@ -76,7 +76,7 @@ bool parser::parse_instruction(s::function &fn) {
             while (parse_instruction(fn));
 
             // TODO: fix repeating code
-            if (auto w = std::get_if<token::word>(&tokens.front())) {
+            if (auto w = std::get_if<token::word>(&tokens.front().node)) {
                 if (w->val != "while") {
                     error("Expected `while` found `" + w->val + "`", tokens.front());
                     return false;
@@ -94,7 +94,7 @@ bool parser::parse_instruction(s::function &fn) {
             do tokens.pop_front();
             while (parse_instruction(fn));
 
-            if (auto w = std::get_if<token::word>(&tokens.front())) {
+            if (auto w = std::get_if<token::word>(&tokens.front().node)) {
                 if (w->val != "repeat") {
                     error("Expected `repeat` found `" + w->val + "`", tokens.front());
                     return false;
@@ -146,7 +146,7 @@ bool parser::parse_instruction(s::function &fn) {
                 << "\tincq " + s::deref(s::rax);
 
 
-            if (auto l = std::get_if<token::word>(&tokens.front())) {
+            if (auto l = std::get_if<token::word>(&tokens.front().node)) {
                 if (l->val == "loop") {
                     fn
                         << "\tjmp " + start_label
@@ -177,7 +177,7 @@ bool parser::parse_instruction(s::function &fn) {
             fn << "\tjmp " + then_label;
 
             // TODO: Remove repeated code
-            if (auto condition = std::get_if<token::word>(&tokens.front())) {
+            if (auto condition = std::get_if<token::word>(&tokens.front().node)) {
                 if (condition->val == "then") {
                     fn << else_label + ":" << then_label + ":";
                     return true;
@@ -187,7 +187,7 @@ bool parser::parse_instruction(s::function &fn) {
                     do tokens.pop_front();
                     while (parse_instruction(fn));
 
-                    if (auto elsecond = std::get_if<token::word>(&tokens.front())) {
+                    if (auto elsecond = std::get_if<token::word>(&tokens.front().node)) {
                         if (elsecond->val == "then") {
                             fn << then_label + ":";
                             return true;
@@ -212,19 +212,19 @@ bool parser::parse_instruction(s::function &fn) {
         } else if (word->val == "variable") {
             tokens.pop_front();
             auto var_name_token = tokens.front();
-            if (auto var_name = std::get_if<token::word>(&tokens.front())) {
+            if (auto var_name = std::get_if<token::word>(&tokens.front().node)) {
                 auto name = var_name->val;
                 // This is janky as hell because I don't have propper look ahead
                 tokens.pop_front();
                 auto size_token = tokens.front();
 
-                if (auto size = std::get_if<token::whole>(&size_token)) {
+                if (auto size = std::get_if<token::whole>(&size_token.node)) {
 
                     tokens.pop_front();
                     // cells || chars || bytes
                     auto type_token = tokens.front();
                     int type_size = 1;
-                    if (auto type = std::get_if<token::word>(&type_token)) {
+                    if (auto type = std::get_if<token::word>(&type_token.node)) {
                         if (type->val == "cells")
                             type_size = 8;
                         else if (type->val == "chars")
@@ -240,7 +240,7 @@ bool parser::parse_instruction(s::function &fn) {
 
                         tokens.pop_front();
                         auto allot_token = tokens.front();
-                        if (auto allot = std::get_if<token::word>(&allot_token)) {
+                        if (auto allot = std::get_if<token::word>(&allot_token.node)) {
                             if (allot->val == "allot") {
                                 fn.add_variable(name, size->val * type_size);
                                 return true;
@@ -273,10 +273,10 @@ bool parser::parse_instruction(s::function &fn) {
             fn << s::call(call_escape(word->val));
         }
         return true;
-    } else if (auto whole = std::get_if<token::whole>(&tokens.front())) {
+    } else if (auto whole = std::get_if<token::whole>(&tokens.front().node)) {
         fn << s::push(whole->val);
         return true;
-    } else if (auto string = std::get_if<token::string>(&tokens.front())) {
+    } else if (auto string = std::get_if<token::string>(&tokens.front().node)) {
         std::string id = random_string();
         fn.strings[id] = string->val;
 
@@ -286,13 +286,13 @@ bool parser::parse_instruction(s::function &fn) {
 }
 
 s::function parser::parse_function() {
-    if (std::get_if<token::start_fn>(&tokens.front()) == nullptr) {
+    if (std::get_if<token::start_fn>(&tokens.front().node) == nullptr) {
         debug(tokens.front());
         error("Expected a `:`, found other token", tokens.front());
     }
     tokens.pop_front();
 
-    auto name_word = std::get_if<token::word>(&tokens.front());
+    auto name_word = std::get_if<token::word>(&tokens.front().node);
     if (!name_word)
         error("Expected a word as the function name", tokens.front());
 
@@ -309,7 +309,7 @@ s::function parser::parse_function() {
         fn << s::pop(s::rax);
     }
 
-    if (!std::get_if<token::end_fn>(&tokens.front()))
+    if (!std::get_if<token::end_fn>(&tokens.front().node))
         error("Expected to end function", tokens.front());
 
     tokens.pop_front();
@@ -321,7 +321,7 @@ std::list<s::function> parser::parse() {
     std::list<s::function> fns;
 
     // While the file isn't over
-    while (std::get_if<token::eof>(&tokens.front()) == nullptr) {
+    while (std::get_if<token::eof>(&tokens.front().node) == nullptr) {
         fns.push_back(parse_function());
     }
     return fns;

@@ -28,10 +28,16 @@ void lexer::error(std::string s) {
 
 void lexer::emplace_buf(std::string &buf) {
     if (s == word) {
-        tokens.emplace_back(token::word{buf,line});
+        tokens.emplace_back(token::token{
+            token::word{buf},
+            line
+        });
     } else if (s == whole) {
         try {
-            tokens.emplace_back(token::whole{std::stol(buf), line});
+            tokens.emplace_back(token::token{
+                token::whole{std::stol(buf)},
+                line
+            });
         } catch (std::invalid_argument) {
             error("Could not convert `" + buf + "` to long.");
         } catch (std::out_of_range) {
@@ -105,9 +111,15 @@ std::list<token::token> lexer::lex() {
                     error("Expected string to end but reached end of file");
                     break;
                 case '"':
-                    tokens.emplace_back(token::string{trim_leading(buf), line});
+                    tokens.emplace_back(token::token{
+                        token::string{trim_leading(buf)},
+                        line,
+                    });
                     if (!str_prefix.empty()) {
-                        tokens.emplace_back(token::word{str_prefix, line});
+                        tokens.emplace_back(token::token{
+                            token::word{str_prefix},
+                            line
+                        });
                         str_prefix = "";
                     }
                     s = none;
@@ -148,7 +160,10 @@ std::list<token::token> lexer::lex() {
                 line_comment = false;
             }
         } else if (c == -1) {
-            tokens.emplace_back(token::eof{line});
+            tokens.emplace_back(token::token{
+                token::eof{},
+                line
+            });
             return tokens;
         }
 
@@ -179,7 +194,7 @@ std::list<token::token> lexer::lex() {
                 auto included_tokens = included.lex();
 
                 for (auto t : included_tokens) {
-                    if (!std::get_if<token::eof>(&t))
+                    if (!std::get_if<token::eof>(&t.node))
                         tokens.push_back(std::move(t));
                 }
                 await_include = false;
@@ -198,13 +213,17 @@ std::list<token::token> lexer::lex() {
         } else if (c == ':') {
             emplace_buf(buf);
 
-            tokens.emplace_back(token::start_fn{line});
+            tokens.emplace_back(token::token{
+                token::start_fn{}, line
+            });
             s = none;
             buf = "";
         } else if (c == ';') {
             emplace_buf(buf);
 
-            tokens.emplace_back(token::end_fn{line});
+            tokens.emplace_back(token::token{
+                token::end_fn{}, line
+            });
             s = none;
             buf = "";
         } else if (c == '"') {

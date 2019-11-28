@@ -1,7 +1,8 @@
 #include <iostream>
 #include "debug.hh"
 
-void debug(token::token t) {
+void debug(token::token tok) {
+    auto t = tok.node;
     if (auto v = std::get_if<token::whole>(&t))
         std::cout << "whole\t\t" << v->val;
     else if (auto v = std::get_if<token::word>(&t))
@@ -18,19 +19,5 @@ void debug(token::token t) {
 }
 
 unsigned get_line(token::token t) {
-    if (auto v = std::get_if<token::whole>(&t))
-        return v->line;
-    else if (auto v = std::get_if<token::word>(&t))
-        return v->line;
-    else if (auto v = std::get_if<token::start_fn>(&t))
-        return v->line;
-    else if (auto v = std::get_if<token::end_fn>(&t))
-        return v->line;
-    else if (auto v = std::get_if<token::string>(&t))
-        return v->line;
-    else if (auto v = std::get_if<token::eof>(&t))
-        return v->line;
-
-    // Execution should never get here, but im doing this to fix the warning
-    return 0;
+    return t.line;
 }
