@@ -67,6 +67,12 @@ std::string lexer::resolve_path(std::string relative) {
     return filepath + "/" + relative;
 }
 
+std::string trim_leading(std::string source) {
+    auto first = source.find_first_not_of(" \t");
+    source.erase(0, first);
+    return source;
+}
+
 std::list<token::token> lexer::lex() {
     char c;
     std::string buf;
@@ -99,8 +105,8 @@ std::list<token::token> lexer::lex() {
                     error("Expected string to end but reached end of file");
                     break;
                 case '"':
-                    tokens.emplace_back(token::string{buf, line});
-                    if (str_prefix != "") {
+                    tokens.emplace_back(token::string{trim_leading(buf), line});
+                    if (!str_prefix.empty()) {
                         tokens.emplace_back(token::word{str_prefix, line});
                         str_prefix = "";
                     }
