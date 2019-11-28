@@ -5,11 +5,15 @@
 #include "asm.hh"
 #include "debug.hh"
 #include "random.hh"
+#include "error.hh"
 
 void parser::error(std::string message, token::token &t) {
     std::cerr
         << "Error parsing line " << get_line(t) << ": " << message << std::endl;
-    throw message;
+
+    err::error(t.file, t.line, t.starts_at, t.ends_at);
+
+    throw err::parsing_error{};
 }
 
 std::string call_escape(std::string word) {
@@ -287,7 +291,6 @@ bool parser::parse_instruction(s::function &fn) {
 
 s::function parser::parse_function() {
     if (std::get_if<token::start_fn>(&tokens.front().node) == nullptr) {
-        debug(tokens.front());
         error("Expected a `:`, found other token", tokens.front());
     }
     tokens.pop_front();

@@ -30,6 +30,7 @@ namespace token {
     struct token {
         node_t node;
         unsigned line;
+        std::string file;
         int starts_at;
         int ends_at;
     };

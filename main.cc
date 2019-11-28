@@ -3,6 +3,7 @@
 #include "debug.hh"
 #include "asm.hh"
 #include "parser.hh"
+#include "error.hh"
 #include <iostream>
 
 namespace s = assembly;
@@ -47,16 +48,27 @@ int main(int argc, char **argv) {
     }
 
     lexer l(file);
-    std::list<token::token> tokens = l.lex();
+    // tfw u wrap main in a try..catch
+    try {
+        std::list<token::token> tokens = l.lex();
+        parser p(tokens, macros);
+        auto f = p.parse();
 
+        for (auto fn : f) {
+            std::cout << fn.assemble();
+        }
+
+        return 0;
+    } catch (err::lexing_error&) {
+        std::cerr << "ForthC has encountered an error while lexing and will "
+                     "now exit. Goodbye\n";
+        return 1;
+    } catch (err::parsing_error&) {
+        std::cerr << "ForthC has encountered an error while parsing and will "
+                     "now exit. Goodbye\n";
+        return 1;
+    }
     /*for (const auto& t : tokens) {
         debug(t);
     }*/
-
-    parser p(tokens, macros);
-    auto f = p.parse();
-
-    for (auto fn : f) {
-        std::cout << fn.assemble();
-    }
 }

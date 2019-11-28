@@ -17,8 +17,13 @@ enum state {
 class lexer {
 private:
     std::ifstream file;
+    std::string filename = "-";
     std::string filepath;
+    bool fromstdin = false;
     void error(std::string s);
+    int start;
+    int end;
+    int current;
     unsigned line;
     std::list<token::token> tokens;
     state s = none;

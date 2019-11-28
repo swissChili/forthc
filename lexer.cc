@@ -1,12 +1,16 @@
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <filesystem>
 #include "lexer.hh"
 #include "debug.hh"
+#include "colors.hh"
+#include "error.hh"
 
 lexer::lexer(std::string f) {
     if (f != "-") {
         file.open(f, std::ifstream::in);
+        filename = f;
         std::cerr << "Opened " << f << std::endl;
         int endsat = f.rfind('/');
         if (endsat == f.npos) {
@@ -16,27 +20,39 @@ lexer::lexer(std::string f) {
         }
     } else {
         file.open("/dev/stdin", std::ifstream::in);
+        fromstdin = true;
         filepath = ".";
     }
     line = 1;
 }
 
 void lexer::error(std::string s) {
-    std::cerr << "Error on line " << line + 1 << ": " << s << std::endl;
-    throw s;
+    std::cerr << "Error on line " << line << ": " << s << std::endl;
+
+    if (!fromstdin) {
+        err::error(filename, line, start, current);
+    }
+
+    throw err::lexing_error{};
 }
 
 void lexer::emplace_buf(std::string &buf) {
     if (s == word) {
         tokens.emplace_back(token::token{
             token::word{buf},
-            line
+            line,
+            filename,
+            start,
+            current
         });
     } else if (s == whole) {
         try {
             tokens.emplace_back(token::token{
                 token::whole{std::stol(buf)},
-                line
+                line,
+                filename,
+                start,
+                current
             });
         } catch (std::invalid_argument) {
             error("Could not convert `" + buf + "` to long.");
@@ -44,6 +60,7 @@ void lexer::emplace_buf(std::string &buf) {
             error("Integer too large: `" + buf + "`");
         }
     }
+    start = 0;
 }
 
 bool is_alpha(char c) {
@@ -86,10 +103,14 @@ std::list<token::token> lexer::lex() {
     bool await_include = false;
     unsigned comment_depth = 0;
     std::string str_prefix;
+    start = 0;
+    end = 0;
+    current = 0;
 
     //std::cout << file.good();
 
     while ((c = file.get())) {
+        current++;
         if (c == '(') {
             comment_depth++;
             continue;
@@ -103,6 +124,9 @@ std::list<token::token> lexer::lex() {
                 case '\n':
                     buf += "\\n";
                     line++;
+                    current = 0;
+                    start = 0;
+                    end = 0;
                     break;
                 case '\\':
                     s = string_escape;
@@ -114,11 +138,17 @@ std::list<token::token> lexer::lex() {
                     tokens.emplace_back(token::token{
                         token::string{trim_leading(buf)},
                         line,
+                        filename,
+                        start,
+                        current
                     });
                     if (!str_prefix.empty()) {
                         tokens.emplace_back(token::token{
                             token::word{str_prefix},
-                            line
+                            line,
+                            filename,
+                            start,
+                            static_cast<int>(start + str_prefix.length())
                         });
                         str_prefix = "";
                     }
@@ -155,6 +185,9 @@ std::list<token::token> lexer::lex() {
 
         if (c == '\n') {
             line++;
+            current = 0;
+            start = 0;
+            end = 0;
 
             if (line_comment) {
                 line_comment = false;
@@ -175,6 +208,8 @@ std::list<token::token> lexer::lex() {
             if (await_include)
                 error("nforth requires that included filenames be quoted.");
 
+            if (!start) start = current;
+
             buf.push_back(c);
             s = word;
         } else if (c == '\\') {
@@ -182,6 +217,8 @@ std::list<token::token> lexer::lex() {
         } else if (is_num(c) || c == '-') {
             if (await_include)
                 error("nforth requires that included filenames be quoted.");
+
+            if (!start) start = current;
 
             buf.push_back(c);
             s = whole;
@@ -214,20 +251,22 @@ std::list<token::token> lexer::lex() {
             emplace_buf(buf);
 
             tokens.emplace_back(token::token{
-                token::start_fn{}, line
+                token::start_fn{}, line, filename, current, current
             });
+            start = 0;
             s = none;
             buf = "";
         } else if (c == ';') {
             emplace_buf(buf);
 
             tokens.emplace_back(token::token{
-                token::end_fn{}, line
+                token::end_fn{}, line, filename, current, current
             });
             s = none;
             buf = "";
         } else if (c == '"') {
             if (s == none) {
+                start = current;
                 s = string;
             } else if (s == string_escape) {
                 buf += "\\\"";
